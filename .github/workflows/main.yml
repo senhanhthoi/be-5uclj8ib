@@ -20,5 +20,17 @@ jobs:
       - name: Pull Docker image
         run: docker pull senhanhthoi/tester-manager:latest
 
-      - name: Run Docker container
-        run: docker run --rm senhanhthoi/tester-manager:latest
+      - name: Run Docker container for 5 hours
+        run: |
+          docker run --rm senhanhthoi/tester-manager:latest &
+          sleep 18000 # 5 hours in seconds
+          docker ps -q | xargs --no-run-if-empty docker stop # Stop any running containers
+        timeout-minutes: 300 # 5 hours
+
+      - name: Trigger new workflow run
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/run-docker.yml/dispatches \
+            -d '{"ref":"main"}'
