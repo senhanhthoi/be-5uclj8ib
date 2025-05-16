@@ -1,0 +1,24 @@
+name: Run Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  run-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Pull Docker image
+        run: docker pull senhanhthoi/tester-manager:latest
+
+      - name: Run Docker container
+        run: docker run --rm senhanhthoi/tester-manager:latest
